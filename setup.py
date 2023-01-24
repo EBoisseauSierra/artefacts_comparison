@@ -23,7 +23,7 @@ setuptools.setup(
     package_data={"static": ["VERSION"]},
     install_requires=["click>=7.0"],
     extras_require={
-        "dev": ["black", "flake8", "pre-commit", "pylint"],
+        "dev": ["build", "black", "flake8", "pre-commit", "pylint", "twine"],
         "test": ["pytest", "pytest-cov"],
     },
     entry_points={
