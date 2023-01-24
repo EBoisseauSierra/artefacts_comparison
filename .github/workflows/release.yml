@@ -1,0 +1,36 @@
+name: Create Release Note
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # cf. https://stackoverflow.com/q/65944700/5433628
+      - name: Get Release title
+        run: echo "RELEASE_TITLE=$(grep -m 1 '^## \[' CHANGELOG.md | sed -e 's/^## \[//g' | sed -e 's/\](http.*\.[0-9])//g')" >> $GITHUB_ENV
+      - name: Get Changelog
+        id: changelog-diff
+        run: |
+          CHANGELOG_DIFF="$(awk 'BEGIN{f=0}; /^## \[/{f++; next}; f==1' CHANGELOG.md)"
+          CHANGELOG_DIFF="${CHANGELOG_DIFF//'%'/'%25'}"
+          CHANGELOG_DIFF="${CHANGELOG_DIFF//$'\n'/'%0A'}"
+          CHANGELOG_DIFF="${CHANGELOG_DIFF//$'\r'/'%0D'}"
+          echo "::set-output name=CHANGELOG_DIFF::$(echo "$CHANGELOG_DIFF")"
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ env.RELEASE_TITLE }}
+          body: ${{ steps.changelog-diff.outputs.CHANGELOG_DIFF }}
+          # files: results/**/*
+          draft: false
+          prerelease: false
+          # fail_on_unmatched_files: true
