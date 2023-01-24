@@ -73,7 +73,7 @@ class Report:
 
         if self.untouched_artefacts:
             artefacts_count = self._print_artefacts_count(
-                self.renamed_artefacts,
+                self.untouched_artefacts,
                 add_other=self.added_artefacts
                 or self.deleted_artefacts
                 or self.renamed_artefacts,
