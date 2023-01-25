@@ -49,7 +49,7 @@ def list_untouched_files(
 def list_renamed_files(
     base: ContentToFilepathMapping, head: ContentToFilepathMapping
 ) -> FilepathMapping:
-    """List artefacts for renamed from base to head.
+    """List artefacts renamed from base to head.
 
     This means their content has not changed, but their file path has.
 
@@ -111,3 +111,23 @@ def list_added_files(
             found in head.
     """
     return [head[artefact_content] for artefact_content in set(head) - set(base)]
+
+
+def list_modified_files(
+    base: ContentToFilepathMapping, head: ContentToFilepathMapping
+) -> FilepathCollection:
+    """List artefacts modified from base to head.
+
+    This means their content has changed, but their file path has not.
+
+    Args:
+        base (ContentToFilepathMapping): Mapping of artefacts content to their
+            filename in the base summary.
+        head (ContentToFilepathMapping): Mapping of artefacts content to their
+            filename in the head summary.
+
+    Returns:
+        FilepathCollection: List of file paths of artefacts which modified
+            between base and head.
+    """
+    raise NotImplementedError()

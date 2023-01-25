@@ -1,6 +1,7 @@
 from artefactscomparison.compare import (
     list_added_files,
     list_deleted_files,
+    list_modified_files,
     list_renamed_files,
     list_untouched_files,
 )
@@ -335,3 +336,93 @@ def test_list_untouched_files_when_multiple_untouched_files():
     assert len(untouched_filenames_computed) == len(untouched_filenames_expected)
     # Same content, irrespective of order
     assert set(untouched_filenames_computed) == set(untouched_filenames_expected)
+
+
+def test_list_modified_files_when_no_modified_files():
+    base = {
+        "1": "no_change_1",
+        "2": "no_change_2",
+        "3": "no_change_3",
+        "4": "no_change_4",
+        "5": "to_rename_1",
+        "6": "to_rename_2",
+        "7": "to_be_deleted",
+    }
+    head = {
+        "1": "no_change_1",
+        "2": "no_change_2",
+        "3": "no_change_3",
+        "4": "no_change_4",
+        "5": "renamed_1",
+        "6": "renamed_2",
+        "8": "added_1",
+        "9": "added_2",
+        "10": "added_3",
+    }
+
+    assert list_modified_files(base, head) == []
+
+
+def test_list_modified_files_when_one_modified_files():
+    base = {
+        "1": "no_change_1",
+        "2": "no_change_2",
+        "3": "no_change_3",
+        "4": "no_change_4",
+        "5": "to_rename_1",
+        "6": "to_rename_2",
+        "7": "to_be_deleted",
+        "42": "modified_1",
+    }
+    head = {
+        "1": "no_change_1",
+        "2": "no_change_2",
+        "3": "no_change_3",
+        "4": "no_change_4",
+        "5": "renamed_1",
+        "6": "renamed_2",
+        "8": "added_1",
+        "9": "added_2",
+        "10": "added_3",
+        "420": "modified_1",
+    }
+
+    assert list_modified_files(base, head) == ["modified_1"]
+
+
+def test_list_modified_files_when_multiple_modified_files():
+    base = {
+        "1": "no_change_1",
+        "2": "no_change_2",
+        "3": "no_change_3",
+        "4": "no_change_4",
+        "5": "to_rename_1",
+        "6": "to_rename_2",
+        "7": "to_be_deleted",
+        "42": "modified_1",
+        "43": "modified_2",
+    }
+    head = {
+        "1": "no_change_1",
+        "2": "no_change_2",
+        "3": "no_change_3",
+        "4": "no_change_4",
+        "5": "renamed_1",
+        "6": "renamed_2",
+        "8": "added_1",
+        "9": "added_2",
+        "10": "added_3",
+        "420": "modified_1",
+        "430": "modified_2",
+    }
+
+    modified_filenames_expected = [
+        "modified_1",
+        "modified_2",
+    ]
+    modified_filenames_computed = list_modified_files(base, head)
+
+    # Same length
+    assert len(modified_filenames_computed) == len(modified_filenames_expected)
+    # Same content, irrespective of order
+    assert set(modified_filenames_computed) == set(modified_filenames_expected)
