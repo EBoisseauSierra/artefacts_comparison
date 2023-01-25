@@ -49,7 +49,7 @@ def list_untouched_files(
 def list_renamed_files(
     base: ContentToFilepathMapping, head: ContentToFilepathMapping
 ) -> FilepathMapping:
-    """List artefacts for renamed from base to head.
+    """List artefacts renamed from base to head.
 
     This means their content has not changed, but their file path has.
 
@@ -80,7 +80,9 @@ def list_renamed_files(
 def list_deleted_files(
     base: ContentToFilepathMapping, head: ContentToFilepathMapping
 ) -> FilepathCollection:
-    """List deleted artefacts, i.e., those whose content is only found in base.
+    """List deleted artefacts.
+
+    I.e., those for which both file path _and_ content is only found in base.
 
     Args:
         base (ContentToFilepathMapping): Mapping of artefacts content to their
@@ -92,13 +94,24 @@ def list_deleted_files(
         FilepathCollection: List of file paths of artefacts which are only
             found in base.
     """
-    return [base[artefact_content] for artefact_content in set(base) - set(head)]
+    content_in_base_only = set(base) - set(head)
+    file_paths_in_base_and_head = set(base.values()) & set(head.values())
+
+    return [
+        base[artefact_content]
+        for artefact_content in content_in_base_only
+        # ignore files simply modified:
+        if base[artefact_content] not in file_paths_in_base_and_head
+    ]
 
 
 def list_added_files(
     base: ContentToFilepathMapping, head: ContentToFilepathMapping
 ) -> FilepathCollection:
-    """List added artefacts, i.e., those whose content is only found in head.
+    """List added artefacts.
+
+    I.e., artefacts for which both file path _and_ content is only found in
+    head.
 
     Args:
         base (ContentToFilepathMapping): Mapping of artefacts content to their
@@ -110,4 +123,41 @@ def list_added_files(
         FilepathCollection: List of file paths of artefacts which are only
             found in head.
     """
-    return [head[artefact_content] for artefact_content in set(head) - set(base)]
+    content_in_head_only = set(head) - set(base)
+    file_paths_in_base_and_head = set(base.values()) & set(head.values())
+
+    return [
+        head[artefact_content]
+        for artefact_content in content_in_head_only
+        # ignore files simply modified:
+        if head[artefact_content] not in file_paths_in_base_and_head
+    ]
+
+
+def list_modified_files(
+    base: ContentToFilepathMapping, head: ContentToFilepathMapping
+) -> FilepathCollection:
+    """List artefacts modified from base to head.
+
+    This means their content has changed from base to head,
+    but their file path has not.
+
+    Args:
+        base (ContentToFilepathMapping): Mapping of artefacts content to their
+            filename in the base summary.
+        head (ContentToFilepathMapping): Mapping of artefacts content to their
+            filename in the head summary.
+
+    Returns:
+        FilepathCollection: List of file paths of artefacts which modified
+            between base and head.
+    """
+    content_in_base_only = set(base) - set(head)
+    file_paths_in_base_and_head = set(base.values()) & set(head.values())
+
+    return [
+        base[artefact_content]
+        for artefact_content in content_in_base_only
+        # keep files simply modified:
+        if base[artefact_content] in file_paths_in_base_and_head
+    ]

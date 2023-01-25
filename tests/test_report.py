@@ -8,6 +8,7 @@ base = {
     "5": "to_rename_1",
     "6": "to_rename_2",
     "7": "to_be_deleted",
+    "42": "modified_1",
 }
 head = {
     "1": "no_change_1",
@@ -19,6 +20,7 @@ head = {
     "8": "added_1",
     "9": "added_2",
     "10": "added_3",
+    "420": "modified_1",
 }
 
 report = Report(base=base, head=head)
@@ -50,6 +52,8 @@ def test_Report_generate():
     ]
     assert len(report.untouched_artefacts) == len(untouched_artefacts_expected)
     assert set(report.untouched_artefacts) == set(untouched_artefacts_expected)
+
+    assert report.modified_artefacts == ["modified_1"]
 
 
 def test_Report_print_artefacts_count_when_no_file_list():
