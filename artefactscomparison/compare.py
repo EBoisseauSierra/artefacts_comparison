@@ -152,4 +152,12 @@ def list_modified_files(
         FilepathCollection: List of file paths of artefacts which modified
             between base and head.
     """
-    raise NotImplementedError()
+    content_in_base_only = set(base) - set(head)
+    file_paths_in_base_and_head = set(base.values()) & set(head.values())
+
+    return [
+        base[artefact_content]
+        for artefact_content in content_in_base_only
+        # keep files simply modified:
+        if base[artefact_content] in file_paths_in_base_and_head
+    ]
