@@ -7,6 +7,7 @@ from .compare import (
     FilepathMapping,
     list_added_files,
     list_deleted_files,
+    list_modified_files,
     list_renamed_files,
     list_untouched_files,
 )
@@ -34,6 +35,7 @@ class Report:
         """
         self.added_artefacts = list_added_files(self.base, self.head)
         self.deleted_artefacts = list_deleted_files(self.base, self.head)
+        self.modified_artefacts = list_modified_files(self.base, self.head)
         self.renamed_artefacts = list_renamed_files(self.base, self.head)
         self.untouched_artefacts = list_untouched_files(self.base, self.head)
 
@@ -46,6 +48,14 @@ class Report:
             str: Report formatted as a Markdown diff code snippet.
         """
         report = ["```diff"]
+
+        if self.modified_artefacts:
+            report.append(
+                f"@@ {self._print_artefacts_count(self.modified_artefacts)} modified @@"
+            )
+            for filename in sorted(self.modified_artefacts):
+                report.append(f"! {filename}")
+            report.append("")
 
         if self.added_artefacts:
             report.append(
